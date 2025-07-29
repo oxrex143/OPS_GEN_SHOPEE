@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ops Code Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .input-group {
+      margin: 20px 0;
+    }
+    input, textarea {
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #qr-container {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+    #qr {
+      margin: 10px auto;
+    }
+    .qr-label {
+      font-weight: bold;
+      margin: 5px 0;
+      font-size: 18px;
+    }
+    .qr-content {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+    /* Welcome Popup Styles */
+    #welcome-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #welcome-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    #welcome-content h2 {
+      color: #4CAF50;
+      margin-top: 0;
+    }
+    #welcome-content ul {
+      text-align: left;
+      margin: 20px 0;
+      padding-left: 20px;
+    }
+    #welcome-content li {
+      margin-bottom: 10px;
+    }
+    #credits {
+      font-style: italic;
+      margin-top: 20px;
+      color: #666;
+    }
+    #close-welcome {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Welcome Popup -->
+  <div id="welcome-popup">
+    <div id="welcome-content">
+      <h2>Ops Code Generator</h2>
+      <p>Welcome to the Ops Code Generator tool. Here's how to use it:</p>
+      <ul>
+        <li>Enter your Ops Number in the first field (required)</li>
+        <li>Optionally add a Custom Name in the second field</li>
+        <li>Click "Generate Ops Code" to create your Ops code</li>
+        <li>Click "Download Ops Code" to save the image</li>
+      </ul>
+      <div id="credits">
+        Created by Jurex Aso
+      </div>
+      <button id="close-welcome">OK, I Understand</button>
+    </div>
+  </div>
+
+  <h1>Ops Code Generator</h1>
+  
+  <div class="input-group">
+    <input type="text" id="opNumber" placeholder="Enter Ops Number" required>
+    <input type="text" id="customName" placeholder="Enter Custom Name">
+  </div>
+  
+  <div>
+    <button onclick="generateQR()">Generate Ops Code</button>
+    <button onclick="downloadQR()" id="downloadBtn" disabled>Download Ops Code</button>
+  </div>
+  
+  <div id="qr-preview-container" class="hidden">
+    <div id="qr-container">
+      <div class="qr-label"></div>
+      <canvas id="qr"></canvas>
+      <div class="qr-content" id="opNumberDisplay"></div>
+      <div class="qr-content" id="customNameDisplay"></div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize QR code generator
+    const qr = new QRious({
+      element: document.getElementById('qr'),
+      size: 200,
+      value: '',
+      level: 'H',
+      background: '#ffffff',
+      foreground: '#000000'
+    });
+
+    // Close welcome popup
+    document.getElementById('close-welcome').addEventListener('click', function() {
+      document.getElementById('welcome-popup').style.display = 'none';
+    });
+
+    // Generate QR code function
+    function generateQR() {
+      const opNumber = document.getElementById('opNumber').value.trim();
+      const customName = document.getElementById('customName').value.trim();
+      
+      if (opNumber) {
+        // Set QR code value (OP number only)
+        qr.value = opNumber;
+        
+        // Update displayed text
+        document.getElementById('opNumberDisplay').textContent = opNumber;
+        document.getElementById('customNameDisplay').textContent = customName || '';
+        
+        // Show preview and enable download
+        document.getElementById('qr-preview-container').classList.remove('hidden');
+        document.getElementById('downloadBtn').disabled = false;
+      } else {
+        alert('Please enter an Ops Number first');
+        document.getElementById('qr-preview-container').classList.add('hidden');
+        document.getElementById('downloadBtn').disabled = true;
+      }
+    }
+
+    // Download QR code function
+    function downloadQR() {
+      const opNumber = document.getElementById('opNumber').value.trim();
+      const customName = document.getElementById('customName').value.trim();
+      
+      if (!opNumber) {
+        alert('Please generate a Ops code first');
+        return;
+      }
+      
+      // Create a temporary canvas for the complete design
+      const tempCanvas = document.createElement('canvas');
+      const ctx = tempCanvas.getContext('2d');
+      
+      // Set canvas size (QR code + labels)
+      tempCanvas.width = 300;
+      tempCanvas.height = 350;
+      
+      // White background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // Add "Op QR Code" label at top
+      ctx.font = 'bold 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#000000';
+      ctx.fillText('Ops Code', tempCanvas.width/2, 30);
+      
+      // Draw the QR code in the middle (offset from top)
+      const qrCanvas = document.getElementById('qr');
+      ctx.drawImage(qrCanvas, (tempCanvas.width - qrCanvas.width)/2, 50);
+      
+      // Add OP number below QR code
+      ctx.font = '16px Arial';
+      ctx.fillText(opNumber, tempCanvas.width/2, 300);
+      
+      // Add custom name if provided
+      if (customName) {
+        ctx.fillText(customName, tempCanvas.width/2, 330);
+      }
+      
+      // Create download link
+      const link = document.createElement('a');
+      const fileName = customName 
+        ? `QR_${opNumber}_${customName.replace(/[^a-z0-9]/gi, '_')}.png`
+        : `QR_${opNumber}.png`;
+      
+      link.download = fileName;
+      link.href = tempCanvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Allow generating QR code by pressing Enter key
+    document.getElementById('opNumber').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        generateQR();
+      }
+    });
+  </script>
+</body>
+  </html>
