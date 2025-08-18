@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ops Code Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #0f1923;
+      --secondary-color: #1f2d3d;
+      --accent-color: #00c8ff;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --card-bg: rgba(31, 45, 61, 0.7);
+      --glass-effect: rgba(31, 45, 61, 0.5);
+      --success-color: #00c853;
+      --warning-color: #ffab00;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 200, 255, 0.1) 0%, transparent 50%);
+    }
+    
+    /* Hamburger Menu */
+    .menu-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      cursor: pointer;
+      background: var(--secondary-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+    }
+    
+    .menu-btn i {
+      font-size: 24px;
+      color: var(--accent-color);
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100%;
+      background: var(--secondary-color);
+      z-index: 1000;
+      transition: all 0.3s ease;
+      box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+      overflow-y: auto;
+    }
+    
+    .sidebar.active {
+      left: 0;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      background: var(--primary-color);
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.2);
+    }
+    
+    .sidebar-menu {
+      padding: 0;
+      list-style: none;
+    }
+    
+    .sidebar-menu li {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-menu li:hover {
+      background: rgba(0, 200, 255, 0.1);
+    }
+    
+    .sidebar-menu li i {
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+    
+    /* Main Content */
+    .content {
+      transition: all 0.3s;
+    }
+    
+    .content.shifted {
+      margin-left: 280px;
+    }
+    
+    h1 {
+      color: var(--accent-color);
+      margin-bottom: 30px;
+      font-weight: 500;
+      text-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+      position: relative;
+    }
+    
+    h1::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-color), transparent);
+      margin: 10px auto;
+      opacity: 0.5;
+    }
+    
+    .input-group {
+      margin: 30px 0;
+    }
+    
+    input, textarea {
+      padding: 12px 15px;
+      width: 80%;
+      max-width: 400px;
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      border-radius: 6px;
+      font-size: 16px;
+      margin: 10px 0;
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+    }
+    
+    button {
+      position: relative;
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-color);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 200, 255, 0.3);
+      border-color: var(--accent-color);
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      background: var(--secondary-color);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    button:disabled:hover {
+      transform: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #qr-container {
+      margin: 30px auto;
+      padding: 25px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: inline-block;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #qr-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 200, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      z-index: -1;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    #qr {
+      margin: 15px auto;
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px;
+      background-color: white;
+    }
+    
+    .qr-label {
+      font-weight: 500;
+      margin: 10px 0;
+      font-size: 18px;
+      color: var(--accent-color);
+    }
+    
+    .qr-content {
+      margin: 12px 0;
+      font-size: 16px;
+      padding: 8px 0;
+      border-top: 1px solid rgba(0, 200, 255, 0.2);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* Gallery Styles */
+    .gallery-container {
+      display: none;
+      padding: 20px;
+    }
+    
+    .gallery-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+    }
+    
+    .gallery-item img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      cursor: zoom-in;
+      transition: transform 0.3s;
+    }
+    
+    .gallery-item img:hover {
+      transform: scale(1.02);
+    }
+    
+    .gallery-item h3 {
+      color: var(--accent-color);
+      margin-top: 0;
+    }
+    
+    .gallery-item p {
+      color: var(--text-color);
+      margin-bottom: 15px;
+    }
+    
+    .gallery-item .download-btn {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-color);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    
+    .gallery-item .download-btn:hover {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-color: var(--accent-color);
+    }
+    
+    /* Image Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow: auto;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .modal-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      animation: zoomIn 0.3s;
+    }
+    
+    @keyframes zoomIn {
+      from {transform: scale(0.5); opacity: 0;}
+      to {transform: scale(1); opacity: 1;}
+    }
+    
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+    
+    .close:hover {
+      color: var(--accent-color);
+      transform: rotate(90deg);
+    }
+    
+    /* Navigation controls */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      padding: 16px;
+      margin-top: -50px;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      transition: 0.3s;
+      user-select: none;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 0 5px 5px 0;
+    }
+    
+    .next {
+      right: 0;
+      border-radius: 5px 0 0 5px;
+    }
+    
+    .prev:hover, .next:hover {
+      background-color: rgba(0, 200, 255, 0.8);
+    }
+    
+    /* Welcome Popup Styles */
+    #welcome-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 25, 35, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+    
+    #welcome-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #welcome-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent-color), transparent);
+    }
+    
+    #welcome-content h2 {
+      color: var(--accent-color);
+      margin-top: 0;
+      font-weight: 500;
+    }
+    
+    #welcome-content p {
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    
+    #welcome-content ul {
+      text-align: left;
+      margin: 20px 0;
+      padding-left: 20px;
+      list-style-type: none;
+    }
+    
+    #welcome-content li {
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 25px;
+    }
+    
+    #welcome-content li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent-color);
+    }
+    
+    #credits {
+      font-style: italic;
+      margin-top: 25px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    #close-welcome {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-color);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    #close-welcome:hover {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-color: var(--accent-color);
+      box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+    }
+    
+    /* Status indicator */
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      background-color: var(--text-secondary);
+      animation: pulse 2s infinite;
+    }
+    
+    .status-active {
+      background-color: var(--success-color);
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      input, textarea {
+        width: 90%;
+      }
+      
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      button {
+        width: 90%;
+        max-width: 250px;
+      }
+      
+      .content.shifted {
+        margin-left: 0;
+      }
+      
+      .sidebar.active {
+        width: 100%;
+        left: 0;
+      }
+      
+      .modal-img {
+        max-width: 95%;
+        max-height: 80%;
+      }
+      
+      .close {
+        top: 10px;
+        right: 15px;
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu -->
+  <div class="menu-btn">
+    <i class="fas fa-bars"></i>
+  </div>
+  
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Menu</h3>
+    </div>
+    <ul class="sidebar-menu">
+      <li id="home-btn"><i class="fas fa-home"></i> Home</li>
+      <li id="gallery-btn"><i class="fas fa-images"></i> Gallery</li>
+    </ul>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <div class="modal-content">
+      <img id="expandedImg" class="modal-img">
+    </div>
+  </div>
+
+  <!-- Welcome Popup -->
+  <div id="welcome-popup">
+    <div id="welcome-content">
+      <h2>Ops Code Generator <span class="status-indicator status-active"></span></h2>
+      <p>Welcome to the Ops Code Generator tool. Here's how to use it:</p>
+      <ul>
+        <li>Enter your Ops Number in the first field (required)</li>
+        <li>Optionally add a Custom Name in the second field</li>
+        <li>Add custom text to display above the QR code</li>
+        <li>Click "Generate Ops Code" to create your Ops code</li>
+        <li>Click "Download Ops Code" to save the image</li>
+        <li>View sample codes in the Gallery section</li>
+      </ul>
+      <div id="credits">
+        System initialized. Created by Jurex Aso.
+      </div>
+      <button id="close-welcome">ACKNOWLEDGE</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content" id="main-content">
+    <h1>OPS CODE GENERATOR</h1>
+    
+    <div class="input-group">
+      <input type="text" id="opNumber" placeholder="ENTER OPS NUMBER" required>
+      <input type="text" id="customName" placeholder="ENTER CUSTOM NAME (OPTIONAL)">
+      <input type="text" id="customText" placeholder="ENTER CUSTOM TEXT TO DISPLAY">
+    </div>
+    
+    <div class="button-container">
+      <button onclick="generateQR()">GENERATE OPS CODE</button>
+      <button onclick="downloadQR()" id="downloadBtn" disabled>DOWNLOAD OPS CODE</button>
+    </div>
+    
+    <div id="qr-preview-container" class="hidden">
+      <div id="qr-container">
+        <div class="qr-label" id="customTextDisplay"></div>
+        <canvas id="qr"></canvas>
+        <div class="qr-content" id="opNumberDisplay"></div>
+        <div class="qr-content" id="customNameDisplay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery Content -->
+  <div class="content gallery-container" id="gallery-content">
+    <h1>GALLERY</h1>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/3QZJY7y.png" alt="Sample QR Code 1" onclick="openModal(this)">
+      <h3>Operations Code - Alpha Team</h3>
+      <p>This QR code was generated for Alpha Team operations in the northern sector. Contains critical mission parameters.</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/3QZJY7y.png', 'OpsCode_AlphaTeam')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/5X9wZ2F.png" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Secure Access Code</h3>
+      <p>High-security access code for restricted areas. Generated on 2023-10-15 with enhanced encryption.</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/5X9wZ2F.png', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/8Y7vV9T.png" alt="Sample QR Code 3" onclick="openModal(this)">
+      <h3>Inventory Tracking</h3>
+      <p>QR code for inventory management system. Tracks equipment serial numbers and maintenance history.</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/8Y7vV9T.png', 'InventoryTracking')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize QR code generator
+    const qr = new QRious({
+      element: document.getElementById('qr'),
+      size: 200,
+      value: '',
+      level: 'H',
+      background: '#ffffff',
+      foreground: '#000000'
+    });
+
+    // Menu toggle
+    const menuBtn = document.querySelector('.menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.getElementById('main-content');
+    const galleryContent = document.getElementById('gallery-content');
+    const homeBtn = document.getElementById('home-btn');
+    const galleryBtn = document.getElementById('gallery-btn');
+    
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      menuBtn.innerHTML = sidebar.classList.contains('active') ? 
+        '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+    });
+    
+    homeBtn.addEventListener('click', () => {
+      mainContent.style.display = 'block';
+      galleryContent.style.display = 'none';
+      sidebar.classList.remove('active');
+      menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+    
+    galleryBtn.addEventListener('click', () => {
+      mainContent.style.display = 'none';
+      galleryContent.style.display = 'block';
+      sidebar.classList.remove('active');
+      menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    // Close welcome popup
+    document.getElementById('close-welcome').addEventListener('click', function() {
+      document.getElementById('welcome-popup').style.display = 'none';
+    });
+
+    // Generate QR code function
+    function generateQR() {
+      const opNumber = document.getElementById('opNumber').value.trim();
+      const customName = document.getElementById('customName').value.trim();
+      const customText = document.getElementById('customText').value.trim();
+      
+      if (opNumber) {
+        // Set QR code value (OP number only)
+        qr.value = opNumber;
+        
+        // Update displayed text
+        document.getElementById('opNumberDisplay').textContent = `OPS NUMBER: ${opNumber}`;
+        document.getElementById('customNameDisplay').textContent = customName ? `IDENTIFIER: ${customName}` : '';
+        document.getElementById('customTextDisplay').textContent = customText || '';
+        
+        // Show preview and enable download
+        document.getElementById('qr-preview-container').classList.remove('hidden');
+        document.getElementById('downloadBtn').disabled = false;
+        
+        // Add visual feedback
+        const generateBtn = document.querySelector('.button-container button:first-child');
+        generateBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--success-color))';
+        setTimeout(() => {
+          generateBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--primary-color))';
+        }, 500);
+      } else {
+        alert('Please enter an Ops Number first');
+        document.getElementById('qr-preview-container').classList.add('hidden');
+        document.getElementById('downloadBtn').disabled = true;
+      }
+    }
+
+    // Download QR code function
+    function downloadQR() {
+      const opNumber = document.getElementById('opNumber').value.trim();
+      const customName = document.getElementById('customName').value.trim();
+      const customText = document.getElementById('customText').value.trim();
+      
+      if (!opNumber) {
+        alert('Please generate a Ops code first');
+        return;
+      }
+      
+      // Create a temporary canvas for the complete design
+      const tempCanvas = document.createElement('canvas');
+      const ctx = tempCanvas.getContext('2d');
+      
+      // Set canvas size (QR code + labels)
+      tempCanvas.width = 300;
+      tempCanvas.height = 380;
+      
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, tempCanvas.width, tempCanvas.height);
+      gradient.addColorStop(0, '#0f1923');
+      gradient.addColorStop(1, '#1f2d3d');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // Add custom text at top if provided
+      if (customText) {
+        ctx.font = 'bold 20px Roboto';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(0, 200, 255, 0.8)';
+        ctx.fillText(customText, tempCanvas.width/2, 40);
+      }
+      
+      // White background for QR code
+      ctx.fillStyle = '#ffffff';
+      const qrPadding = 10;
+      const qrSize = 200;
+      ctx.fillRect(
+        (tempCanvas.width - qrSize)/2 - qrPadding, 
+        60 - qrPadding, 
+        qrSize + qrPadding*2, 
+        qrSize + qrPadding*2
+      );
+      
+      // Draw the QR code in the middle (offset from top)
+      const qrCanvas = document.getElementById('qr');
+      ctx.drawImage(qrCanvas, (tempCanvas.width - qrCanvas.width)/2, 60);
+      
+      // Add OP number below QR code
+      ctx.font = '16px Roboto';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`OPS NUMBER: ${opNumber}`, tempCanvas.width/2, 300);
+      
+      // Add custom name if provided
+      if (customName) {
+        ctx.fillText(`IDENTIFIER: ${customName}`, tempCanvas.width/2, 330);
+      }
+      
+      // Add footer
+      ctx.font = 'italic 12px Roboto';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillText('Generated by Ops Code System', tempCanvas.width/2, 360);
+      
+      // Create download link
+      const link = document.createElement('a');
+      const fileName = customName 
+        ? `OpsCode_${opNumber}_${customName.replace(/[^a-z0-9]/gi, '_')}.png`
+        : `OpsCode_${opNumber}.png`;
+      
+      link.download = fileName;
+      link.href = tempCanvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Add visual feedback
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--success-color))';
+      setTimeout(() => {
+        downloadBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--primary-color))';
+      }, 500);
+    }
+
+    // Download gallery image function
+    function downloadGalleryImage(url, name) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name || 'qr_code_image';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Image modal functionality
+    function openModal(imgElement) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('expandedImg');
+      
+      modal.style.display = 'flex';
+      modalImg.src = imgElement.src;
+      
+      // Close modal when clicking the X
+      document.querySelector('.close').onclick = function() {
+        modal.style.display = 'none';
+      }
+      
+      // Close modal when clicking outside the image
+      modal.onclick = function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      }
+    }
+
+    // Allow generating QR code by pressing Enter key
+    document.getElementById('opNumber').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        generateQR();
+      }
+    });
+    
+    // Add focus effects to inputs
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('focus', function() {
+        this.style.boxShadow = '0 0 15px rgba(0, 200, 255, 0.4)';
+      });
+      input.addEventListener('blur', function() {
+        this.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
+      });
+    });
+  </script>
+</body>
+</html>
