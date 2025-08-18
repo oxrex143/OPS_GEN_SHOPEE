@@ -6,6 +6,7 @@
   <title>Ops Code Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     :root {
       --primary-color: #0f1923;
@@ -21,7 +22,7 @@
     
     body {
       font-family: 'Roboto', sans-serif;
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 20px;
       text-align: center;
@@ -30,6 +31,83 @@
       background-image: 
         radial-gradient(circle at 25% 25%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(0, 200, 255, 0.1) 0%, transparent 50%);
+    }
+    
+    /* Hamburger Menu */
+    .menu-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      cursor: pointer;
+      background: var(--secondary-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+    }
+    
+    .menu-btn i {
+      font-size: 24px;
+      color: var(--accent-color);
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100%;
+      background: var(--secondary-color);
+      z-index: 1000;
+      transition: all 0.3s ease;
+      box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+      overflow-y: auto;
+    }
+    
+    .sidebar.active {
+      left: 0;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      background: var(--primary-color);
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.2);
+    }
+    
+    .sidebar-menu {
+      padding: 0;
+      list-style: none;
+    }
+    
+    .sidebar-menu li {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-menu li:hover {
+      background: rgba(0, 200, 255, 0.1);
+    }
+    
+    .sidebar-menu li i {
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+    
+    /* Main Content */
+    .content {
+      transition: all 0.3s;
+    }
+    
+    .content.shifted {
+      margin-left: 280px;
     }
     
     h1 {
@@ -194,6 +272,136 @@
       display: none;
     }
     
+    /* Gallery Styles */
+    .gallery-container {
+      display: none;
+      padding: 20px;
+    }
+    
+    .gallery-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+    }
+    
+    .gallery-item img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      cursor: zoom-in;
+      transition: transform 0.3s;
+    }
+    
+    .gallery-item img:hover {
+      transform: scale(1.02);
+    }
+    
+    .gallery-item h3 {
+      color: var(--accent-color);
+      margin-top: 0;
+    }
+    
+    .gallery-item p {
+      color: var(--text-color);
+      margin-bottom: 15px;
+    }
+    
+    .gallery-item .download-btn {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: var(--text-color);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    
+    .gallery-item .download-btn:hover {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-color: var(--accent-color);
+    }
+    
+    /* Image Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow: auto;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .modal-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      animation: zoomIn 0.3s;
+    }
+    
+    @keyframes zoomIn {
+      from {transform: scale(0.5); opacity: 0;}
+      to {transform: scale(1); opacity: 1;}
+    }
+    
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+    
+    .close:hover {
+      color: var(--accent-color);
+      transform: rotate(90deg);
+    }
+    
+    /* Navigation controls */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      padding: 16px;
+      margin-top: -50px;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      transition: 0.3s;
+      user-select: none;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 0 5px 5px 0;
+    }
+    
+    .next {
+      right: 0;
+      border-radius: 5px 0 0 5px;
+    }
+    
+    .prev:hover, .next:hover {
+      background-color: rgba(0, 200, 255, 0.8);
+    }
+    
     /* Welcome Popup Styles */
     #welcome-popup {
       position: fixed;
@@ -326,10 +534,53 @@
         width: 90%;
         max-width: 250px;
       }
+      
+      .content.shifted {
+        margin-left: 0;
+      }
+      
+      .sidebar.active {
+        width: 100%;
+        left: 0;
+      }
+      
+      .modal-img {
+        max-width: 95%;
+        max-height: 80%;
+      }
+      
+      .close {
+        top: 10px;
+        right: 15px;
+        font-size: 30px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Hamburger Menu -->
+  <div class="menu-btn">
+    <i class="fas fa-bars"></i>
+  </div>
+  
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Menu</h3>
+    </div>
+    <ul class="sidebar-menu">
+      <li id="home-btn"><i class="fas fa-home"></i> Home</li>
+      <li id="gallery-btn"><i class="fas fa-images"></i> Gallery</li>
+    </ul>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <div class="modal-content">
+      <img id="expandedImg" class="modal-img">
+    </div>
+  </div>
+
   <!-- Welcome Popup -->
   <div id="welcome-popup">
     <div id="welcome-content">
@@ -338,8 +589,10 @@
       <ul>
         <li>Enter your Ops Number in the first field (required)</li>
         <li>Optionally add a Custom Name in the second field</li>
+        <li>Add custom text to display above the QR code</li>
         <li>Click "Generate Ops Code" to create your Ops code</li>
         <li>Click "Download Ops Code" to save the image</li>
+        <li>View sample codes in the Gallery section</li>
       </ul>
       <div id="credits">
         System initialized. Created by Jurex Aso.
@@ -348,25 +601,127 @@
     </div>
   </div>
 
-  <h1>OPS CODE GENERATOR</h1>
-  
-  <div class="input-group">
-    <input type="text" id="opNumber" placeholder="ENTER OPS NUMBER" required>
-    <input type="text" id="customName" placeholder="ENTER CUSTOM NAME (OPTIONAL)">
-  </div>
-  
-  <div class="button-container">
-    <button onclick="generateQR()">GENERATE OPS CODE</button>
-    <button onclick="downloadQR()" id="downloadBtn" disabled>DOWNLOAD OPS CODE</button>
-  </div>
-  
-  <div id="qr-preview-container" class="hidden">
-    <div id="qr-container">
-      <div class="qr-label">OPERATIONS CODE</div>
-      <canvas id="qr"></canvas>
-      <div class="qr-content" id="opNumberDisplay"></div>
-      <div class="qr-content" id="customNameDisplay"></div>
+  <!-- Main Content -->
+  <div class="content" id="main-content">
+    <h1>OPS CODE GENERATOR</h1>
+    
+    <div class="input-group">
+      <input type="text" id="opNumber" placeholder="ENTER OPS NUMBER" required>
+      <input type="text" id="customName" placeholder="ENTER CUSTOM NAME (OPTIONAL)">
+      <input type="text" id="customText" placeholder="ENTER CUSTOM TEXT TO DISPLAY">
     </div>
+    
+    <div class="button-container">
+      <button onclick="generateQR()">GENERATE OPS CODE</button>
+      <button onclick="downloadQR()" id="downloadBtn" disabled>DOWNLOAD OPS CODE</button>
+    </div>
+    
+    <div id="qr-preview-container" class="hidden">
+      <div id="qr-container">
+        <div class="qr-label" id="customTextDisplay"></div>
+        <canvas id="qr"></canvas>
+        <div class="qr-content" id="opNumberDisplay"></div>
+        <div class="qr-content" id="customNameDisplay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery Content -->
+  <div class="content gallery-container" id="gallery-content">
+    <h1>OUTBOUND GALLERY</h1>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/xoHCGuS.jpeg" alt="Sample QR Code 1" onclick="openModal(this)">
+      <h3>Operations Code - Outbound Team</h3>
+      <p>Outbound ni bay, Snack time😁.</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/xoHCGuS.jpeg', 'OpsCode_AlphaTeam')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/sa8ixX4.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/sa8ixX4.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/tLVZvsL.jpeg" alt="Sample QR Code 3" onclick="openModal(this)">
+      <h3>Memorys</h3>
+      <p> maintenance history.</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/tLVZvsL.jpeg', 'InventoryTracking')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+   
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/ELrft0o.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/ELrft0o.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/0g3X478.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/0g3X478.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/QqxbS4G.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/QqxbS4G.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/Ri2EDev.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/Ri2EDev.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/Xh15dr5.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/Xh15dr5.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/rLlzM7D.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/rLlzM7D.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/m6hlliw.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/m6hlliw.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+    <div class="gallery-item">
+      <img src="https://i.imgur.com/o13jAgk.jpeg" alt="Sample QR Code 2" onclick="openModal(this)">
+      <h3>Outbound Team Memorys</h3>
+      <p>Yeah</p>
+      <button class="download-btn" onclick="downloadGalleryImage('https://i.imgur.com/o13jAgk.jpeg', 'SecureAccessCode')">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>    
   </div>
 
   <script>
@@ -380,27 +735,53 @@
       foreground: '#000000'
     });
 
+    // Menu toggle
+    const menuBtn = document.querySelector('.menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.getElementById('main-content');
+    const galleryContent = document.getElementById('gallery-content');
+    const homeBtn = document.getElementById('home-btn');
+    const galleryBtn = document.getElementById('gallery-btn');
+    
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      menuBtn.innerHTML = sidebar.classList.contains('active') ? 
+        '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+    });
+    
+    homeBtn.addEventListener('click', () => {
+      mainContent.style.display = 'block';
+      galleryContent.style.display = 'none';
+      sidebar.classList.remove('active');
+      menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+    
+    galleryBtn.addEventListener('click', () => {
+      mainContent.style.display = 'none';
+      galleryContent.style.display = 'block';
+      sidebar.classList.remove('active');
+      menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
     // Close welcome popup
     document.getElementById('close-welcome').addEventListener('click', function() {
       document.getElementById('welcome-popup').style.display = 'none';
-      // Add a subtle sound effect (optional)
-      const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU...');
-      audio.volume = 0.2;
-      audio.play().catch(e => {});
     });
 
     // Generate QR code function
     function generateQR() {
       const opNumber = document.getElementById('opNumber').value.trim();
       const customName = document.getElementById('customName').value.trim();
+      const customText = document.getElementById('customText').value.trim();
       
       if (opNumber) {
         // Set QR code value (OP number only)
         qr.value = opNumber;
         
         // Update displayed text
-        document.getElementById('opNumberDisplay').textContent = `OPS: ${opNumber}`;
-        document.getElementById('customNameDisplay').textContent = customName ? `NAME: ${customName}` : '';
+        document.getElementById('opNumberDisplay').textContent = ` ${opNumber}`;
+        document.getElementById('customNameDisplay').textContent = customName ? ` ${customName}` : '';
+        document.getElementById('customTextDisplay').textContent = customText || '';
         
         // Show preview and enable download
         document.getElementById('qr-preview-container').classList.remove('hidden');
@@ -422,101 +803,4 @@
     // Download QR code function
     function downloadQR() {
       const opNumber = document.getElementById('opNumber').value.trim();
-      const customName = document.getElementById('customName').value.trim();
-      
-      if (!opNumber) {
-        alert('Please generate a Ops code first');
-        return;
-      }
-      
-      // Create a temporary canvas for the complete design
-      const tempCanvas = document.createElement('canvas');
-      const ctx = tempCanvas.getContext('2d');
-      
-      // Set canvas size (QR code + labels)
-      tempCanvas.width = 300;
-      tempCanvas.height = 380;
-      
-      // Gradient background
-      const gradient = ctx.createLinearGradient(0, 0, tempCanvas.width, tempCanvas.height);
-      gradient.addColorStop(0, '#0f1923');
-      gradient.addColorStop(1, '#1f2d3d');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      
-      // Add "OPS CODE" label at top
-      ctx.font = 'bold 20px Roboto';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(0, 200, 255, 0.8)';
-      ctx.fillText('', tempCanvas.width/2, 40);
-      
-      // White background for QR code
-      ctx.fillStyle = '#ffffff';
-      const qrPadding = 10;
-      const qrSize = 200;
-      ctx.fillRect(
-        (tempCanvas.width - qrSize)/2 - qrPadding, 
-        60 - qrPadding, 
-        qrSize + qrPadding*2, 
-        qrSize + qrPadding*2
-      );
-      
-      // Draw the QR code in the middle (offset from top)
-      const qrCanvas = document.getElementById('qr');
-      ctx.drawImage(qrCanvas, (tempCanvas.width - qrCanvas.width)/2, 60);
-      
-      // Add OP number below QR code
-      ctx.font = '17px Roboto';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(`OPS: ${opNumber}`, tempCanvas.width/2, 300);
-      
-      // Add custom name if provided
-      if (customName) {
-        ctx.fillText(`Name: ${customName}`, tempCanvas.width/2, 330);
-      }
-      
-      // Add footer
-      ctx.font = 'serif 12px Roboto';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillText('Generated by Outbound Team', tempCanvas.width/2, 360);
-      
-      // Create download link
-      const link = document.createElement('a');
-      const fileName = customName 
-        ? `OpsCode_${opNumber}_${customName.replace(/[^a-z0-9]/gi, '_')}.png`
-        : `OpsCode_${opNumber}.png`;
-      
-      link.download = fileName;
-      link.href = tempCanvas.toDataURL('image/png');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Add visual feedback
-      const downloadBtn = document.getElementById('downloadBtn');
-      downloadBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--success-color))';
-      setTimeout(() => {
-        downloadBtn.style.background = 'linear-gradient(135deg, var(--secondary-color), var(--primary-color))';
-      }, 500);
-    }
-
-    // Allow generating QR code by pressing Enter key
-    document.getElementById('opNumber').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        generateQR();
-      }
-    });
-    
-    // Add focus effects to inputs
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.addEventListener('focus', function() {
-        this.style.boxShadow = '0 0 15px rgba(0, 200, 255, 0.4)';
-      });
-      input.addEventListener('blur', function() {
-        this.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
-      });
-    });
-  </script>
-</body>
-  </html>
+      const 
