@@ -799,11 +799,11 @@
       // Add OP number below QR code
       ctx.font = '16px Roboto';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(`OPS NUMBER: ${opNumber}`, tempCanvas.width/2, 300);
+      ctx.fillText(` ${opNumber}`, tempCanvas.width/2, 300);
       
       // Add custom name if provided
       if (customName) {
-        ctx.fillText(`IDENTIFIER: ${customName}`, tempCanvas.width/2, 330);
+        ctx.fillText(` ${customName}`, tempCanvas.width/2, 330);
       }
       
       // Add footer
